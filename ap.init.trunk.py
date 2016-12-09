@@ -47,6 +47,7 @@ class ApInit:
         print("AP target:", self.ap_target)
         print("Zone director:", self.ZD_IP)
         print("Vlan:", self.vlan)
+        print("Assigned device name:", self.name)
         print("Assigned IP:", self.IP)
 
     def run(self):
@@ -66,10 +67,6 @@ class ApInit:
 
             ssh.expect([ "rkscli:" ])
             ssh.sendline("set interface eth1 type vlan-trunk untag 1")
-            ssh.expect([ "OK" ])
-
-            ssh.expect([ "rkscli:" ])
-            ssh.sendline("set director ip %s" % self.ZD_IP)
             ssh.expect([ "OK" ])
 
             ssh.expect([ "rkscli:" ])
