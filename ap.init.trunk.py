@@ -21,7 +21,6 @@ class ApInit:
         self.ZD_IP = os.environ.get("ZONEDIRECTOR_IP")
         self.gateway = os.environ.get("AP_GATEWAY_IP")
         self.vlan = int(os.environ.get("AP_MGNT_VLAN"))
-        self.dns = os.environ.get("AP_DNS")
         self.username = os.environ.get("AP_USERNAME")
         self.passwd = os.environ.get("AP_PASSWORD")
 
@@ -85,16 +84,18 @@ class ApInit:
             ssh.expect([ "OK" ])
 
             ssh.expect([ "rkscli:" ])
-            ssh.sendline("set dns %s" % self.dns)
-            ssh.expect([ "OK" ])
-
-            ssh.expect([ "rkscli:" ])
             ssh.sendline("set director ip %s" % self.ZD_IP)
             ssh.expect([ "OK" ])
 
             ssh.expect([ "rkscli:" ])
             ssh.sendline("set device-name %s" % self.name)
             ssh.expect([ "OK" ])
+
+            ssh.expect([ "rkscli:" ])
+            ssh.sendline("reboot")
+            ssh.expect([ "OK" ])
+
+            print('The AP has been rebooted')
 
             pexpect.spawn("ssh-keygen -R %s" % self.ap_target).close()
 
