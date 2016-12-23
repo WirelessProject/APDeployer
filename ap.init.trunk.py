@@ -4,6 +4,8 @@ from pexpect import pxssh
 import argparse
 import pexpect
 import sys
+import hmac
+import re
 
 # For reading configuration file.
 import os
@@ -23,6 +25,8 @@ class ApInit:
         self.vlan = int(os.environ.get("AP_MGNT_VLAN"))
         self.username = os.environ.get("AP_USERNAME")
         self.passwd = os.environ.get("AP_PASSWORD")
+        self.lock_secret = os.environ.get("LOCK_SECRET")
+        self.lock_digits = int(os.environ.get("LOCK_DIGITS"))
 
         parser = argparse.ArgumentParser(
             description="Deploy ZoneFlex AP configurations"
@@ -34,7 +38,7 @@ class ApInit:
         )
         parser.add_argument(
             "identifier",
-            type=int,
+            type=str,
             help="Product Number last 3 digits"
         )
         args = parser.parse_args()
@@ -42,6 +46,7 @@ class ApInit:
         # Handles product ID and transfer to IP.
         self.name = args.name
         self.ID = args.identifier
+        assert re.search('^\d{3}$', self.ID), 'Incorrect identifier format'
         self.IDtoIP()
 
         print("AP target:", self.ap_target)
@@ -49,6 +54,7 @@ class ApInit:
         print("Vlan:", self.vlan)
         print("Assigned device name:", self.name)
         print("Assigned IP:", self.IP)
+        print("Lock password", self.GenPassword())
 
     def run(self):
         with pexpect.spawn(
@@ -97,9 +103,19 @@ class ApInit:
             pexpect.spawn("ssh-keygen -R %s" % self.ap_target).close()
 
     def IDtoIP(self):
-        div = 8 + self.ID // 256
-        remainder = self.ID % 256
+        id_num = int(self.ID, 10)
+        div = 8 + id_num // 256
+        remainder = id_num % 256
         self.IP = "10.3.%d.%d" % (div, remainder)
+
+    def GenPassword(self):
+        assert self.lock_digits <= 154
+        password = ('%0155d' % (int(hmac.new(
+            key=self.lock_secret.encode('utf-8'),
+            msg=self.ID.encode('utf-8'),
+            digestmod='sha512'
+        ).hexdigest(), 16)))[-self.lock_digits:]
+        return password
 
 
 if __name__ == '__main__':
