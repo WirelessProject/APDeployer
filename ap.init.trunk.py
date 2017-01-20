@@ -104,7 +104,7 @@ class ApInit:
 
     def IDtoIP(self):
         id_num = int(self.ID, 10)
-        div = 8 + id_num // 256
+        div = id_num // 256
         remainder = id_num % 256
         self.IP = "10.3.%d.%d" % (div, remainder)
 
