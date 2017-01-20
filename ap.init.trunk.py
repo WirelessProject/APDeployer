@@ -106,7 +106,7 @@ class ApInit:
         id_num = int(self.ID, 10)
         div = id_num // 256
         remainder = id_num % 256
-        self.IP = "10.3.%d.%d" % (div, remainder)
+        self.IP = "10.4.%d.%d" % (div, remainder)
 
     def GenPassword(self):
         assert self.lock_digits <= 154
