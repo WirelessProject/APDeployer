@@ -9,15 +9,15 @@ import re
 
 # For reading configuration file.
 import os
-from dotenv import Dotenv
+from dotenv import load_dotenv
 
 
 class ApInit:
     def __init__(self):
         # Loads configuration file.
 
-        dotenv = Dotenv(os.path.join(os.path.dirname(__file__), ".env"))
-        os.environ.update(dotenv)
+        dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+        load_dotenv(dotenv_path)
 
         self.ap_target = os.environ.get("AP_IP")
         self.ZD_IP = os.environ.get("ZONEDIRECTOR_IP")
